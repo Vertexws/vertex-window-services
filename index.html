@@ -906,17 +906,30 @@
             </div>
           </div>
 
-          <div class="form-group">
-            <label for="serviceType">Type of service</label>
-            <select id="serviceType" name="serviceType">
-              <option value="">Select an option</option>
-              <option>Residential window cleaning</option>
-              <option>Commercial / storefront</option>
-              <option>Interior &amp; exterior</option>
-              <option>Screen &amp; track cleaning</option>
-              <option>Other / not sure</option>
-            </select>
-          </div>
+        <div class="form-group">
+  <label for="serviceType">Type of service</label>
+  <select id="serviceType" name="serviceType">
+    <option value="">Select service type</option>
+    <optgroup label="Residential Services">
+      <option>Home - Exterior windows only</option>
+      <option>Home - Interior & exterior</option>
+      <option>Condo / Townhouse</option>
+      <option>Post-construction home cleanup</option>
+    </optgroup>
+    <optgroup label="Commercial Services">
+      <option>Storefront / Retail</option>
+      <option>Office building</option>
+      <option>Restaurant / Café</option>
+      <option>Medical / Professional office</option>
+    </optgroup>
+    <optgroup label="Add-On Services">
+      <option>Screen washing & track cleaning</option>
+      <option>Hard water stain removal</option>
+      <option>Gutter cleaning</option>
+    </optgroup>
+    <option>Not sure - Need help deciding</option>
+  </select>
+</div>
 
           <div class="form-group">
             <label for="details">Tell us about your windows
