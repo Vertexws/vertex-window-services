@@ -10,9 +10,9 @@
   />
   <style>
     :root {
-      --primary: #1e88e5; /* main blue */
+      --primary: #1e88e5;
       --primary-dark: #0d47a1;
-      --accent: #ffb300;  /* golden accent */
+      --accent: #ffb300;
       --bg: #f3f5f9;
       --text: #1f2933;
       --muted: #6b7280;
@@ -52,16 +52,13 @@
     /* NAV + HERO */
 
     header {
-      background:
-    linear-gradient(
+      background: linear-gradient(
         135deg,
-        rgba(13, 71, 161, 0.80),
-        rgba(21, 101, 192, 0.80)
-    ),
-    url("logo.png") center/cover no-repeat;
-
-  background-color: #0d47a1;
-  color: #fff;
+        rgba(13, 71, 161, 0.95),
+        rgba(21, 101, 192, 0.90)
+      );
+      background-color: #0d47a1;
+      color: #fff;
     }
 
     .topbar {
@@ -100,33 +97,13 @@
     .logo {
       display: flex;
       align-items: center;
-      gap: 0.6rem;
+      gap: 0.8rem;
     }
 
-    .logo-icon {
-      width: 36px;
-      height: 36px;
-      border-radius: 999px;
-      background: rgba(255, 255, 255, 0.12);
-      border: 1px solid rgba(255, 255, 255, 0.65);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: 700;
-      letter-spacing: 0.08em;
-      font-size: 0.9rem;
-    }
-
-    .logo-text-main {
-      font-weight: 700;
-      letter-spacing: 0.05em;
-      text-transform: uppercase;
-      font-size: 0.95rem;
-    }
-
-    .logo-text-sub {
-      font-size: 0.74rem;
-      opacity: 0.9;
+    /* Updated logo styles for SVG */
+    .logo-svg {
+      width: 140px;
+      height: auto;
     }
 
     .nav-links {
@@ -619,6 +596,10 @@
         flex-direction: column;
         align-items: flex-start;
       }
+      
+      .logo-svg {
+        width: 120px;
+      }
     }
   </style>
 </head>
@@ -636,18 +617,27 @@
     </div>
   </div>
 
-    <!-- HEADER / NAV / HERO -->
+  <!-- HEADER / NAV / HERO -->
   <header id="top">
     <div class="nav">
-      <div class="logo">
-        <div class="logo-icon">
-          <img src="logo.png" alt="Vertex Window Services logo" class="logo-icon-img">
-        </div>
-        <div>
-          <div class="logo-text-main">Vertex</div>
-          <div class="logo-text-sub">Window Services</div>
-        </div>
-      </div>
+      <a href="#top" class="logo">
+        <!-- Inline SVG Logo for Dark Background -->
+        <svg class="logo-svg" viewBox="0 0 340 120" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="shineGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" style="stop-color:#ffffff;stop-opacity:0.9" />
+              <stop offset="100%" style="stop-color:#ffffff;stop-opacity:0" />
+            </linearGradient>
+          </defs>
+          <g transform="translate(40, 30)">
+            <path d="M 10 5 L 20 5 L 35 45 L 50 5 L 60 5 L 40 60 L 30 60 Z" fill="#38bdf8"/>
+            <path d="M 15 8 L 23 8 L 35 42 L 47 8 L 55 8 L 38 57 L 32 57 Z" fill="#7dd3fc" opacity="0.7"/>
+            <rect x="32" y="0" width="6" height="50" fill="url(#shineGradient)" transform="rotate(-15 35 25)"/>
+          </g>
+          <text x="130" y="50" font-family="Arial, sans-serif" font-size="32" font-weight="bold" fill="#f0f9ff">VERTEX</text>
+          <text x="130" y="72" font-family="Arial, sans-serif" font-size="13" fill="#cbd5e1" letter-spacing="1.5">WINDOW SERVICES</text>
+        </svg>
+      </a>
 
       <nav class="nav-links">
         <a href="#services">Services</a>
@@ -684,7 +674,7 @@
         </div>
 
         <p class="hero-note">
-          We’re often on ladders or with customers, so the best way to reach us
+          We're often on ladders or with customers, so the best way to reach us
           is through the quote form or by emailing
           <strong>vertexws.gj@gmail.com</strong>. We typically reply within one
           business day.
@@ -695,7 +685,7 @@
         <h3>Quick estimate info</h3>
         <p>
           Share your address, number of stories, and a rough idea of window
-          count. We’ll follow up with a clear, honest quote by email.
+          count. We'll follow up with a clear, honest quote by email.
         </p>
         <div class="hero-mini-grid">
           <div class="hero-mini">
@@ -765,7 +755,7 @@
         <div class="section-kicker">Why choose Vertex</div>
         <h2>Reliable, careful, and fully insured</h2>
         <p>
-          We’re a local, owner-operated company that shows up when we say we
+          We're a local, owner-operated company that shows up when we say we
           will, communicates clearly, and leaves your glass spotless.
         </p>
       </div>
@@ -789,7 +779,7 @@
           <h3>Insured for peace of mind</h3>
           <p>
             We use professional tools and safe techniques. In the rare event
-            something goes wrong, you’re protected.
+            something goes wrong, you're protected.
           </p>
         </div>
       </div>
@@ -810,8 +800,8 @@
         <div class="review">
           <div class="stars">★★★★★</div>
           <p>
-            “They made our windows look brand new. Fast, friendly, and very
-            respectful of our home.”
+            "They made our windows look brand new. Fast, friendly, and very
+            respectful of our home."
           </p>
           <strong>Emily R.</strong>
           <div class="review-role">Residential client</div>
@@ -820,8 +810,8 @@
         <div class="review">
           <div class="stars">★★★★★</div>
           <p>
-            “We use Vertex on a regular schedule for our storefront. Customers
-            notice when the glass is clean.”
+            "We use Vertex on a regular schedule for our storefront. Customers
+            notice when the glass is clean."
           </p>
           <strong>Local business owner</strong>
           <div class="review-role">Commercial client</div>
@@ -830,8 +820,8 @@
         <div class="review">
           <div class="stars">★★★★★</div>
           <p>
-            “Great communication from quote to final walkthrough. I’ll be
-            calling them again next season.”
+            "Great communication from quote to final walkthrough. I'll be
+            calling them again next season."
           </p>
           <strong>Jason T.</strong>
           <div class="review-role">Repeat client</div>
@@ -845,8 +835,8 @@
         <div class="section-kicker">Service area</div>
         <h2>Window cleaning in the Grand Valley</h2>
         <p>
-          We’re based in Grand Junction, CO and serve many surrounding
-          neighborhoods. Not sure if you’re in range? Just ask.
+          We're based in Grand Junction, CO and serve many surrounding
+          neighborhoods. Not sure if you're in range? Just ask.
         </p>
       </div>
 
@@ -867,8 +857,8 @@
         </div>
         <div>
           <p style="font-size:0.86rem; color:var(--muted); margin-bottom:0.5rem;">
-            If your city isn’t listed, send us your address and a quick note.
-            We’ll let you know if we can help or refer you to someone who can.
+            If your city isn't listed, send us your address and a quick note.
+            We'll let you know if we can help or refer you to someone who can.
           </p>
           <a href="#contact" class="btn btn-primary" style="width:100%; justify-content:center;">
             Ask about my address
@@ -883,7 +873,7 @@
         <div class="section-kicker">Free quote</div>
         <h2>Request your free estimate</h2>
         <p>
-          Use the form below and we’ll follow up with pricing and available
+          Use the form below and we'll follow up with pricing and available
           dates by email, usually within one business day.
         </p>
       </div>
@@ -929,60 +919,4 @@
           </div>
 
           <div class="form-group">
-            <label for="details">Tell us about your windows</label>
-            <textarea
-              id="details"
-              name="details"
-              placeholder="Number of stories, approximate number of windows, preferred days/times…"
-            ></textarea>
-          </div>
-
-          <button type="submit" class="btn btn-primary">Submit my request</button>
-          <div class="form-note">
-            Requests are sent to <strong>vertexws.gj@gmail.com</strong>. We reply
-            as soon as we can, usually within one business day.
-          </div>
-        </form>
-
-        <div class="contact-info">
-          <h3>Prefer to email directly?</h3>
-          <p>
-            You can also email us a few details about your property, and we’ll
-            follow up with questions or a quote.
-          </p>
-
-          <ul class="contact-list">
-            <li>
-              <span>Email:</span>
-              <a href="mailto:vertexws.gj@gmail.com">vertexws.gj@gmail.com</a>
-            </li>
-          </ul>
-
-          <p style="font-size:0.86rem;">
-            In your email, include your address, city, type of property
-            (home, storefront, office), and any deadlines or preferred days/times.
-          </p>
-        </div>
-      </div>
-    </section>
-  </main>
-
-  <footer>
-    <div class="footer-inner">
-      <div>
-        © <span id="year"></span> Vertex Window Services. All rights reserved.
-      </div>
-      <div class="footer-nav">
-        <a href="#top">Home</a>
-        <a href="#services">Services</a>
-        <a href="#areas">Service area</a>
-        <a href="#contact">Free quote</a>
-      </div>
-    </div>
-  </footer>
-
-  <script>
-    document.getElementById("year").textContent = new Date().getFullYear();
-  </script>
-</body>
-</html>
+            <label for="details">Tell us about your windows
