@@ -1,246 +1,641 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="UTF-8">
-  <title>Download Calculator Code</title>
-  <style>
-    body {
-      font-family: system-ui, -apple-system, sans-serif;
-      max-width: 800px;
-      margin: 50px auto;
-      padding: 20px;
-      background: #f5f5f5;
+import React, { useState, useEffect } from 'react';
+import { Calculator, Home, Building2, Plus, Minus, DollarSign } from 'lucide-react';
+
+const PricingCalculator = () => {
+  const [serviceType, setServiceType] = useState('');
+  const [propertySize, setPropertySize] = useState('medium');
+  const [windowCount, setWindowCount] = useState(20);
+  const [stories, setStories] = useState(1);
+  const [includeInterior, setIncludeInterior] = useState(true);
+  const [addScreens, setAddScreens] = useState(false);
+  const [addTracks, setAddTracks] = useState(false);
+  const [addHardWater, setAddHardWater] = useState(false);
+  const [addGutters, setAddGutters] = useState(false);
+  const [gutterFeet, setGutterFeet] = useState(100);
+  const [isRecurring, setIsRecurring] = useState(false);
+  const [recurringFrequency, setRecurringFrequency] = useState('quarterly');
+  const [estimate, setEstimate] = useState({ base: 0, addOns: 0, total: 0, perWindow: 0 });
+
+  // Pricing constants
+  const PRICING = {
+    residential: {
+      exteriorOnly: { perPane: 7 },
+      interiorExterior: { perPane: 7 },
+      panesPerWindow: 2,
+      storyMultiplier: { 1: 1, 2: 1, 3: 1.25, 4: 1.5 }
+    },
+    commercial: {
+      storefront: { perPane: 9, min: 100 },
+      office: { perSquareFoot: 0.08, min: 150 },
+      restaurant: { perPane: 9, min: 120 },
+      medical: { perPane: 9, min: 150 }
+    },
+    addOns: {
+      screenWash: 4,
+      trackCleaning: 2.5,
+      hardWaterLight: 6,
+      hardWaterHeavy: 12,
+      gutterPerFoot: 0.80
+    },
+    recurring: {
+      monthly: 0.80,
+      quarterly: 0.85,
+      biannual: 0.90
+    },
+    minimumCharge: 100
+  };
+
+  useEffect(() => {
+    calculateEstimate();
+  }, [serviceType, propertySize, windowCount, stories, includeInterior, addScreens, addTracks, addHardWater, addGutters, gutterFeet, isRecurring, recurringFrequency]);
+
+  const calculateEstimate = () => {
+    let basePrice = 0;
+    let addOnsTotal = 0;
+
+    // Calculate base price based on service type
+    if (serviceType.startsWith('residential')) {
+      const panesPerWindow = PRICING.residential.panesPerWindow;
+      const sidesMultiplier = includeInterior ? 2 : 1;
+      const totalPanes = windowCount * panesPerWindow * sidesMultiplier;
+      const storyMultiplier = PRICING.residential.storyMultiplier[stories] || 1;
+      
+      basePrice = totalPanes * PRICING.residential.exteriorOnly.perPane * storyMultiplier;
+      
+      // Post-construction markup
+      if (serviceType === 'residential-postconstruction') {
+        basePrice *= 1.75;
+      }
+    } else if (serviceType.startsWith('commercial')) {
+      if (serviceType === 'commercial-storefront') {
+        basePrice = Math.max(windowCount * PRICING.commercial.storefront.perPane, PRICING.commercial.storefront.min);
+      } else if (serviceType === 'commercial-office') {
+        const sqFt = propertySize === 'small' ? 1500 : propertySize === 'medium' ? 3500 : 6000;
+        basePrice = Math.max(sqFt * PRICING.commercial.office.perSquareFoot, PRICING.commercial.office.min);
+      } else if (serviceType === 'commercial-restaurant') {
+        basePrice = Math.max(windowCount * PRICING.commercial.restaurant.perPane, PRICING.commercial.restaurant.min);
+      } else if (serviceType === 'commercial-medical') {
+        basePrice = Math.max(windowCount * PRICING.commercial.medical.perPane, PRICING.commercial.medical.min);
+      }
     }
-    .container {
-      background: white;
-      padding: 40px;
-      border-radius: 10px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+
+    // Add-ons
+    if (addScreens) {
+      addOnsTotal += windowCount * PRICING.addOns.screenWash;
     }
-    h1 {
-      color: #1e40af;
-      margin-bottom: 20px;
+    if (addTracks) {
+      addOnsTotal += windowCount * PRICING.addOns.trackCleaning;
     }
-    .download-btn {
-      display: inline-block;
-      background: #3b82f6;
-      color: white;
-      padding: 15px 30px;
-      border-radius: 8px;
-      text-decoration: none;
-      font-weight: bold;
-      font-size: 18px;
-      margin: 20px 0;
-      cursor: pointer;
-      border: none;
+    if (addHardWater) {
+      addOnsTotal += windowCount * PRICING.addOns.hardWaterLight;
     }
-    .download-btn:hover {
-      background: #2563eb;
+    if (addGutters) {
+      addOnsTotal += gutterFeet * PRICING.addOns.gutterPerFoot;
     }
-    .instructions {
-      background: #eff6ff;
-      padding: 20px;
-      border-radius: 8px;
-      margin-top: 20px;
-      border-left: 4px solid #3b82f6;
+
+    let subtotal = basePrice + addOnsTotal;
+
+    // Apply recurring discount
+    if (isRecurring && recurringFrequency) {
+      subtotal *= PRICING.recurring[recurringFrequency];
     }
-    .instructions h3 {
-      margin-top: 0;
-      color: #1e40af;
-    }
-    .instructions ol {
-      line-height: 1.8;
-    }
-    code {
-      background: #f3f4f6;
-      padding: 2px 6px;
-      border-radius: 3px;
-      font-family: monospace;
-    }
-  </style>
-</head>
-<body>
-  <div class="container">
-    <h1>📥 Download Vertex Pricing Calculator</h1>
-    <p>Click the button below to download the complete <code>calculator.html</code> file:</p>
-    
-    <button class="download-btn" onclick="downloadFile()">Download calculator.html</button>
-    
-    <div class="instructions">
-      <h3>📋 Instructions:</h3>
-      <ol>
-        <li>Click the download button above</li>
-        <li>Save the file as <code>calculator.html</code></li>
-        <li>Upload it to your website alongside your <code>index.html</code></li>
-        <li>Make sure you've added the links in your <code>index.html</code> navigation</li>
-        <li>Test by clicking "Price Calculator" on your website!</li>
-      </ol>
+
+    // Apply minimum charge
+    const total = Math.max(subtotal, PRICING.minimumCharge);
+    const perWindow = windowCount > 0 ? (total / windowCount) : 0;
+
+    setEstimate({
+      base: Math.round(basePrice),
+      addOns: Math.round(addOnsTotal),
+      total: Math.round(total),
+      perWindow: perWindow.toFixed(2)
+    });
+  };
+
+  const resetCalculator = () => {
+    setServiceType('');
+    setPropertySize('medium');
+    setWindowCount(20);
+    setStories(1);
+    setIncludeInterior(true);
+    setAddScreens(false);
+    setAddTracks(false);
+    setAddHardWater(false);
+    setAddGutters(false);
+    setGutterFeet(100);
+    setIsRecurring(false);
+    setRecurringFrequency('quarterly');
+  };
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-blue-900 via-blue-700 to-blue-600 p-6">
+      <div className="max-w-6xl mx-auto">
+        {/* Header */}
+        <div className="text-center mb-8">
+          <div className="flex items-center justify-center gap-3 mb-3">
+            <Calculator className="text-white" size={40} />
+            <h1 className="text-4xl font-bold text-white">Pricing Calculator</h1>
+          </div>
+          <p className="text-blue-100 text-lg">Vertex Window Services - Grand Junction, CO</p>
+        </div>
+
+        <div className="grid lg:grid-cols-3 gap-6">
+          {/* Left Column - Inputs */}
+          <div className="lg:col-span-2 space-y-4">
+            {/* Service Type Selection */}
+            <div className="bg-white rounded-2xl shadow-xl p-6">
+              <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+                <Building2 size={24} className="text-blue-600" />
+                Service Type
+              </h2>
+              <div className="space-y-3">
+                <div>
+                  <p className="text-sm font-semibold text-gray-700 mb-2">Residential Services</p>
+                  <div className="grid grid-cols-2 gap-2">
+                    <button
+                      onClick={() => setServiceType('residential-exterior')}
+                      className={`p-3 rounded-lg border-2 text-sm font-medium transition-all ${
+                        serviceType === 'residential-exterior'
+                          ? 'border-blue-500 bg-blue-50 text-blue-700'
+                          : 'border-gray-200 hover:border-blue-300'
+                      }`}
+                    >
+                      Exterior Only
+                    </button>
+                    <button
+                      onClick={() => setServiceType('residential-both')}
+                      className={`p-3 rounded-lg border-2 text-sm font-medium transition-all ${
+                        serviceType === 'residential-both'
+                          ? 'border-blue-500 bg-blue-50 text-blue-700'
+                          : 'border-gray-200 hover:border-blue-300'
+                      }`}
+                    >
+                      Interior & Exterior
+                    </button>
+                    <button
+                      onClick={() => setServiceType('residential-condo')}
+                      className={`p-3 rounded-lg border-2 text-sm font-medium transition-all ${
+                        serviceType === 'residential-condo'
+                          ? 'border-blue-500 bg-blue-50 text-blue-700'
+                          : 'border-gray-200 hover:border-blue-300'
+                      }`}
+                    >
+                      Condo/Townhouse
+                    </button>
+                    <button
+                      onClick={() => setServiceType('residential-postconstruction')}
+                      className={`p-3 rounded-lg border-2 text-sm font-medium transition-all ${
+                        serviceType === 'residential-postconstruction'
+                          ? 'border-blue-500 bg-blue-50 text-blue-700'
+                          : 'border-gray-200 hover:border-blue-300'
+                      }`}
+                    >
+                      Post-Construction
+                    </button>
+                  </div>
+                </div>
+
+                <div>
+                  <p className="text-sm font-semibold text-gray-700 mb-2">Commercial Services</p>
+                  <div className="grid grid-cols-2 gap-2">
+                    <button
+                      onClick={() => setServiceType('commercial-storefront')}
+                      className={`p-3 rounded-lg border-2 text-sm font-medium transition-all ${
+                        serviceType === 'commercial-storefront'
+                          ? 'border-blue-500 bg-blue-50 text-blue-700'
+                          : 'border-gray-200 hover:border-blue-300'
+                      }`}
+                    >
+                      Storefront
+                    </button>
+                    <button
+                      onClick={() => setServiceType('commercial-office')}
+                      className={`p-3 rounded-lg border-2 text-sm font-medium transition-all ${
+                        serviceType === 'commercial-office'
+                          ? 'border-blue-500 bg-blue-50 text-blue-700'
+                          : 'border-gray-200 hover:border-blue-300'
+                      }`}
+                    >
+                      Office Building
+                    </button>
+                    <button
+                      onClick={() => setServiceType('commercial-restaurant')}
+                      className={`p-3 rounded-lg border-2 text-sm font-medium transition-all ${
+                        serviceType === 'commercial-restaurant'
+                          ? 'border-blue-500 bg-blue-50 text-blue-700'
+                          : 'border-gray-200 hover:border-blue-300'
+                      }`}
+                    >
+                      Restaurant
+                    </button>
+                    <button
+                      onClick={() => setServiceType('commercial-medical')}
+                      className={`p-3 rounded-lg border-2 text-sm font-medium transition-all ${
+                        serviceType === 'commercial-medical'
+                          ? 'border-blue-500 bg-blue-50 text-blue-700'
+                          : 'border-gray-200 hover:border-blue-300'
+                      }`}
+                    >
+                      Medical Office
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Property Details */}
+            {serviceType && (
+              <div className="bg-white rounded-2xl shadow-xl p-6">
+                <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+                  <Home size={24} className="text-blue-600" />
+                  Property Details
+                </h2>
+
+                {serviceType.startsWith('residential') && (
+                  <>
+                    <div className="mb-4">
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">
+                        Number of Windows
+                      </label>
+                      <div className="flex items-center gap-3">
+                        <button
+                          onClick={() => setWindowCount(Math.max(1, windowCount - 5))}
+                          className="p-2 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+                        >
+                          <Minus size={20} />
+                        </button>
+                        <input
+                          type="number"
+                          value={windowCount}
+                          onChange={(e) => setWindowCount(Math.max(1, parseInt(e.target.value) || 1))}
+                          className="w-24 text-center text-2xl font-bold p-2 border-2 border-gray-300 rounded-lg"
+                        />
+                        <button
+                          onClick={() => setWindowCount(windowCount + 5)}
+                          className="p-2 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+                        >
+                          <Plus size={20} />
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="mb-4">
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">
+                        Number of Stories
+                      </label>
+                      <div className="grid grid-cols-4 gap-2">
+                        {[1, 2, 3, 4].map(story => (
+                          <button
+                            key={story}
+                            onClick={() => setStories(story)}
+                            className={`p-3 rounded-lg border-2 font-semibold transition-all ${
+                              stories === story
+                                ? 'border-blue-500 bg-blue-50 text-blue-700'
+                                : 'border-gray-200 hover:border-blue-300'
+                            }`}
+                          >
+                            {story}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    {serviceType !== 'residential-exterior' && (
+                      <div className="mb-4">
+                        <label className="flex items-center gap-2 cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={includeInterior}
+                            onChange={(e) => setIncludeInterior(e.target.checked)}
+                            className="w-5 h-5 text-blue-600"
+                          />
+                          <span className="text-sm font-medium text-gray-700">
+                            Include interior windows
+                          </span>
+                        </label>
+                      </div>
+                    )}
+                  </>
+                )}
+
+                {serviceType.startsWith('commercial') && (
+                  <>
+                    {serviceType === 'commercial-office' && (
+                      <div className="mb-4">
+                        <label className="block text-sm font-semibold text-gray-700 mb-2">
+                          Property Size
+                        </label>
+                        <div className="grid grid-cols-3 gap-2">
+                          {['small', 'medium', 'large'].map(size => (
+                            <button
+                              key={size}
+                              onClick={() => setPropertySize(size)}
+                              className={`p-3 rounded-lg border-2 text-sm font-medium capitalize transition-all ${
+                                propertySize === size
+                                  ? 'border-blue-500 bg-blue-50 text-blue-700'
+                                  : 'border-gray-200 hover:border-blue-300'
+                              }`}
+                            >
+                              {size}
+                            </button>
+                          ))}
+                        </div>
+                        <p className="text-xs text-gray-500 mt-2">
+                          Small: ~1,500 sq ft • Medium: ~3,500 sq ft • Large: ~6,000+ sq ft
+                        </p>
+                      </div>
+                    )}
+
+                    {serviceType !== 'commercial-office' && (
+                      <div className="mb-4">
+                        <label className="block text-sm font-semibold text-gray-700 mb-2">
+                          Number of Windows/Panes
+                        </label>
+                        <div className="flex items-center gap-3">
+                          <button
+                            onClick={() => setWindowCount(Math.max(1, windowCount - 2))}
+                            className="p-2 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+                          >
+                            <Minus size={20} />
+                          </button>
+                          <input
+                            type="number"
+                            value={windowCount}
+                            onChange={(e) => setWindowCount(Math.max(1, parseInt(e.target.value) || 1))}
+                            className="w-24 text-center text-2xl font-bold p-2 border-2 border-gray-300 rounded-lg"
+                          />
+                          <button
+                            onClick={() => setWindowCount(windowCount + 2)}
+                            className="p-2 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+                          >
+                            <Plus size={20} />
+                          </button>
+                        </div>
+                      </div>
+                    )}
+                  </>
+                )}
+              </div>
+            )}
+
+            {/* Add-Ons */}
+            {serviceType && (
+              <div className="bg-white rounded-2xl shadow-xl p-6">
+                <h2 className="text-xl font-bold text-gray-900 mb-4">Add-On Services</h2>
+                <div className="space-y-3">
+                  <label className="flex items-center justify-between p-3 bg-gray-50 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors">
+                    <div className="flex items-center gap-3">
+                      <input
+                        type="checkbox"
+                        checked={addScreens}
+                        onChange={(e) => setAddScreens(e.target.checked)}
+                        className="w-5 h-5 text-blue-600"
+                      />
+                      <div>
+                        <span className="font-medium text-gray-900">Screen Washing</span>
+                        <p className="text-xs text-gray-500">${PRICING.addOns.screenWash} per screen</p>
+                      </div>
+                    </div>
+                    {addScreens && (
+                      <span className="text-blue-600 font-semibold">
+                        +${windowCount * PRICING.addOns.screenWash}
+                      </span>
+                    )}
+                  </label>
+
+                  <label className="flex items-center justify-between p-3 bg-gray-50 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors">
+                    <div className="flex items-center gap-3">
+                      <input
+                        type="checkbox"
+                        checked={addTracks}
+                        onChange={(e) => setAddTracks(e.target.checked)}
+                        className="w-5 h-5 text-blue-600"
+                      />
+                      <div>
+                        <span className="font-medium text-gray-900">Track Cleaning</span>
+                        <p className="text-xs text-gray-500">${PRICING.addOns.trackCleaning} per window</p>
+                      </div>
+                    </div>
+                    {addTracks && (
+                      <span className="text-blue-600 font-semibold">
+                        +${Math.round(windowCount * PRICING.addOns.trackCleaning)}
+                      </span>
+                    )}
+                  </label>
+
+                  <label className="flex items-center justify-between p-3 bg-gray-50 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors">
+                    <div className="flex items-center gap-3">
+                      <input
+                        type="checkbox"
+                        checked={addHardWater}
+                        onChange={(e) => setAddHardWater(e.target.checked)}
+                        className="w-5 h-5 text-blue-600"
+                      />
+                      <div>
+                        <span className="font-medium text-gray-900">Hard Water Stain Removal</span>
+                        <p className="text-xs text-gray-500">${PRICING.addOns.hardWaterLight} per window (light stains)</p>
+                      </div>
+                    </div>
+                    {addHardWater && (
+                      <span className="text-blue-600 font-semibold">
+                        +${windowCount * PRICING.addOns.hardWaterLight}
+                      </span>
+                    )}
+                  </label>
+
+                  <div className="bg-gray-50 rounded-lg p-3">
+                    <label className="flex items-center gap-3 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={addGutters}
+                        onChange={(e) => setAddGutters(e.target.checked)}
+                        className="w-5 h-5 text-blue-600"
+                      />
+                      <div className="flex-1">
+                        <span className="font-medium text-gray-900">Gutter Cleaning</span>
+                        <p className="text-xs text-gray-500">${PRICING.addOns.gutterPerFoot} per linear foot</p>
+                      </div>
+                    </label>
+                    {addGutters && (
+                      <div className="mt-3 flex items-center gap-3">
+                        <label className="text-sm font-medium text-gray-700">Linear feet:</label>
+                        <input
+                          type="number"
+                          value={gutterFeet}
+                          onChange={(e) => setGutterFeet(Math.max(0, parseInt(e.target.value) || 0))}
+                          className="w-24 p-2 border-2 border-gray-300 rounded-lg"
+                        />
+                        <span className="text-blue-600 font-semibold">
+                          +${Math.round(gutterFeet * PRICING.addOns.gutterPerFoot)}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Recurring Service */}
+            {serviceType && (
+              <div className="bg-white rounded-2xl shadow-xl p-6">
+                <h2 className="text-xl font-bold text-gray-900 mb-4">Recurring Service</h2>
+                <label className="flex items-center gap-3 mb-3 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={isRecurring}
+                    onChange={(e) => setIsRecurring(e.target.checked)}
+                    className="w-5 h-5 text-blue-600"
+                  />
+                  <span className="font-medium text-gray-900">This is a recurring service</span>
+                </label>
+
+                {isRecurring && (
+                  <div className="grid grid-cols-3 gap-2 mt-3">
+                    <button
+                      onClick={() => setRecurringFrequency('monthly')}
+                      className={`p-3 rounded-lg border-2 text-sm font-medium transition-all ${
+                        recurringFrequency === 'monthly'
+                          ? 'border-blue-500 bg-blue-50 text-blue-700'
+                          : 'border-gray-200 hover:border-blue-300'
+                      }`}
+                    >
+                      Monthly
+                      <span className="block text-xs mt-1">20% off</span>
+                    </button>
+                    <button
+                      onClick={() => setRecurringFrequency('quarterly')}
+                      className={`p-3 rounded-lg border-2 text-sm font-medium transition-all ${
+                        recurringFrequency === 'quarterly'
+                          ? 'border-blue-500 bg-blue-50 text-blue-700'
+                          : 'border-gray-200 hover:border-blue-300'
+                      }`}
+                    >
+                      Quarterly
+                      <span className="block text-xs mt-1">15% off</span>
+                    </button>
+                    <button
+                      onClick={() => setRecurringFrequency('biannual')}
+                      className={`p-3 rounded-lg border-2 text-sm font-medium transition-all ${
+                        recurringFrequency === 'biannual'
+                          ? 'border-blue-500 bg-blue-50 text-blue-700'
+                          : 'border-gray-200 hover:border-blue-300'
+                      }`}
+                    >
+                      Bi-Annual
+                      <span className="block text-xs mt-1">10% off</span>
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+
+          {/* Right Column - Estimate */}
+          <div className="lg:col-span-1">
+            <div className="bg-white rounded-2xl shadow-xl p-6 sticky top-6">
+              <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2">
+                <DollarSign size={28} className="text-green-600" />
+                Estimate
+              </h2>
+
+              {!serviceType ? (
+                <div className="text-center py-12 text-gray-400">
+                  <Calculator size={48} className="mx-auto mb-3 opacity-50" />
+                  <p className="text-sm">Select a service type to begin</p>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  <div className="pb-4 border-b border-gray-200">
+                    <div className="flex justify-between items-center mb-2">
+                      <span className="text-gray-600">Base Service</span>
+                      <span className="text-lg font-semibold">${estimate.base}</span>
+                    </div>
+                    {estimate.addOns > 0 && (
+                      <div className="flex justify-between items-center text-sm">
+                        <span className="text-gray-600">Add-Ons</span>
+                        <span className="font-semibold text-blue-600">+${estimate.addOns}</span>
+                      </div>
+                    )}
+                    {isRecurring && (
+                      <div className="flex justify-between items-center text-sm mt-2 text-green-600">
+                        <span className="font-medium">Recurring Discount</span>
+                        <span className="font-semibold">
+                          {recurringFrequency === 'monthly' ? '-20%' : recurringFrequency === 'quarterly' ? '-15%' : '-10%'}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl p-6 text-white">
+                    <p className="text-sm opacity-90 mb-1">Total Estimate</p>
+                    <p className="text-4xl font-bold mb-3">${estimate.total}</p>
+                    {windowCount > 0 && (
+                      <p className="text-sm opacity-90">
+                        ${estimate.perWindow} per window
+                      </p>
+                    )}
+                  </div>
+
+                  <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                    <p className="text-xs text-yellow-800 leading-relaxed">
+                      <strong>Note:</strong> This is an estimate. Final pricing may vary based on window accessibility, condition, and specific site requirements. Minimum charge of $100 applies.
+                    </p>
+                  </div>
+
+                  <button
+                    onClick={resetCalculator}
+                    className="w-full py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold rounded-lg transition-colors"
+                  >
+                    Reset Calculator
+                  </button>
+
+                  <div className="pt-4 border-t border-gray-200">
+                    <p className="text-xs text-gray-500 text-center leading-relaxed">
+                      Questions? Contact us at<br />
+                      <a href="mailto:vertexws.gj@gmail.com" className="text-blue-600 font-medium">
+                        vertexws.gj@gmail.com
+                      </a>
+                    </p>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Pricing Guide Footer */}
+        <div className="mt-8 bg-white rounded-2xl shadow-xl p-6">
+          <h3 className="text-lg font-bold text-gray-900 mb-3">Quick Pricing Reference</h3>
+          <div className="grid md:grid-cols-3 gap-4 text-sm">
+            <div>
+              <p className="font-semibold text-gray-900 mb-2">Residential</p>
+              <ul className="space-y-1 text-gray-600">
+                <li>• $7 per pane (each side)</li>
+                <li>• 2-3 story: +25-50% markup</li>
+                <li>• Minimum: $100</li>
+              </ul>
+            </div>
+            <div>
+              <p className="font-semibold text-gray-900 mb-2">Commercial</p>
+              <ul className="space-y-1 text-gray-600">
+                <li>• Storefront: $9 per pane</li>
+                <li>• Office: ~$0.08 per sq ft</li>
+                <li>• Minimum: $100-150</li>
+              </ul>
+            </div>
+            <div>
+              <p className="font-semibold text-gray-900 mb-2">Add-Ons</p>
+              <ul className="space-y-1 text-gray-600">
+                <li>• Screens: $4 each</li>
+                <li>• Tracks: $2.50 per window</li>
+                <li>• Gutters: $0.80 per linear ft</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
+  );
+};
 
-    <div class="instructions" style="background: #fef3c7; border-left-color: #f59e0b;">
-      <h3>⚠️ Important:</h3>
-      <p>Don't forget to update your <code>index.html</code> with these two links:</p>
-      <ol>
-        <li><strong>Navigation:</strong> Add <code>&lt;a href="calculator.html"&gt;Price Calculator&lt;/a&gt;</code></li>
-        <li><strong>Hero section:</strong> Change "View our services" button to <code>&lt;a href="calculator.html" class="btn btn-outline"&gt;Try our calculator&lt;/a&gt;</code></li>
-      </ol>
-    </div>
-  </div>
-
-  <script>
-    function downloadFile() {
-      const calculatorCode = `<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Pricing Calculator - Vertex Window Services</title>
-  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"><\/script>
-  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"><\/script>
-  <script src="https://unpkg.com/@babel/standalone/babel.min.js"><\/script>
-  <script src="https://cdn.tailwindcss.com"><\/script>
-</head>
-<body>
-  <div id="root"></div>
-  <script type="text/babel">
-    const { useState, useEffect } = React;
-    const Calculator = ({ size = 24 }) => React.createElement("svg", {width:size,height:size,viewBox:"0 0 24 24",fill:"none",stroke:"currentColor",strokeWidth:"2"}, React.createElement("rect",{x:"4",y:"2",width:"16",height:"20",rx:"2"}), React.createElement("line",{x1:"8",y1:"6",x2:"16",y2:"6"}));
-    const Home = ({ size = 24 }) => React.createElement("svg", {width:size,height:size,viewBox:"0 0 24 24",fill:"none",stroke:"currentColor",strokeWidth:"2"}, React.createElement("path",{d:"M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"}), React.createElement("polyline",{points:"9 22 9 12 15 12 15 22"}));
-    const Building2 = ({ size = 24 }) => React.createElement("svg", {width:size,height:size,viewBox:"0 0 24 24",fill:"none",stroke:"currentColor",strokeWidth:"2"}, React.createElement("rect",{x:"4",y:"2",width:"16",height:"20",rx:"2"}), React.createElement("path",{d:"M9 22v-4h6v4"}));
-    const Plus = ({ size = 24 }) => React.createElement("svg", {width:size,height:size,viewBox:"0 0 24 24",fill:"none",stroke:"currentColor",strokeWidth:"2"}, React.createElement("line",{x1:"12",y1:"5",x2:"12",y2:"19"}), React.createElement("line",{x1:"5",y1:"12",x2:"19",y2:"12"}));
-    const Minus = ({ size = 24 }) => React.createElement("svg", {width:size,height:size,viewBox:"0 0 24 24",fill:"none",stroke:"currentColor",strokeWidth:"2"}, React.createElement("line",{x1:"5",y1:"12",x2:"19",y2:"12"}));
-    const DollarSign = ({ size = 24 }) => React.createElement("svg", {width:size,height:size,viewBox:"0 0 24 24",fill:"none",stroke:"currentColor",strokeWidth:"2"}, React.createElement("line",{x1:"12",y1:"1",x2:"12",y2:"23"}), React.createElement("path",{d:"M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"}));
-    const ArrowLeft = ({ size = 20 }) => React.createElement("svg", {width:size,height:size,viewBox:"0 0 24 24",fill:"none",stroke:"currentColor",strokeWidth:"2"}, React.createElement("line",{x1:"19",y1:"12",x2:"5",y2:"12"}), React.createElement("polyline",{points:"12 19 5 12 12 5"}));
-
-    function PricingCalculator() {
-      const [serviceType, setServiceType] = useState('');
-      const [propertySize, setPropertySize] = useState('medium');
-      const [windowCount, setWindowCount] = useState(20);
-      const [stories, setStories] = useState(1);
-      const [includeInterior, setIncludeInterior] = useState(true);
-      const [addScreens, setAddScreens] = useState(false);
-      const [addTracks, setAddTracks] = useState(false);
-      const [addHardWater, setAddHardWater] = useState(false);
-      const [addGutters, setAddGutters] = useState(false);
-      const [gutterFeet, setGutterFeet] = useState(100);
-      const [isRecurring, setIsRecurring] = useState(false);
-      const [recurringFrequency, setRecurringFrequency] = useState('quarterly');
-      const [estimate, setEstimate] = useState({ base: 0, addOns: 0, total: 0, perWindow: 0 });
-
-      const PRICING = {
-        residential: { exteriorOnly: { perPane: 7 }, interiorExterior: { perPane: 7 }, panesPerWindow: 2, storyMultiplier: { 1: 1, 2: 1, 3: 1.25, 4: 1.5 } },
-        commercial: { storefront: { perPane: 9, min: 100 }, office: { perSquareFoot: 0.08, min: 150 }, restaurant: { perPane: 9, min: 120 }, medical: { perPane: 9, min: 150 } },
-        addOns: { screenWash: 4, trackCleaning: 2.5, hardWaterLight: 6, hardWaterHeavy: 12, gutterPerFoot: 0.80 },
-        recurring: { monthly: 0.80, quarterly: 0.85, biannual: 0.90 },
-        minimumCharge: 100
-      };
-
-      useEffect(() => { calculateEstimate(); }, [serviceType, propertySize, windowCount, stories, includeInterior, addScreens, addTracks, addHardWater, addGutters, gutterFeet, isRecurring, recurringFrequency]);
-
-      const calculateEstimate = () => {
-        let basePrice = 0, addOnsTotal = 0;
-        if (serviceType.startsWith('residential')) {
-          const panesPerWindow = PRICING.residential.panesPerWindow;
-          const sidesMultiplier = includeInterior ? 2 : 1;
-          const totalPanes = windowCount * panesPerWindow * sidesMultiplier;
-          const storyMultiplier = PRICING.residential.storyMultiplier[stories] || 1;
-          basePrice = totalPanes * PRICING.residential.exteriorOnly.perPane * storyMultiplier;
-          if (serviceType === 'residential-postconstruction') basePrice *= 1.75;
-        } else if (serviceType.startsWith('commercial')) {
-          if (serviceType === 'commercial-storefront') basePrice = Math.max(windowCount * PRICING.commercial.storefront.perPane, PRICING.commercial.storefront.min);
-          else if (serviceType === 'commercial-office') {
-            const sqFt = propertySize === 'small' ? 1500 : propertySize === 'medium' ? 3500 : 6000;
-            basePrice = Math.max(sqFt * PRICING.commercial.office.perSquareFoot, PRICING.commercial.office.min);
-          } else if (serviceType === 'commercial-restaurant') basePrice = Math.max(windowCount * PRICING.commercial.restaurant.perPane, PRICING.commercial.restaurant.min);
-          else if (serviceType === 'commercial-medical') basePrice = Math.max(windowCount * PRICING.commercial.medical.perPane, PRICING.commercial.medical.min);
-        }
-        if (addScreens) addOnsTotal += windowCount * PRICING.addOns.screenWash;
-        if (addTracks) addOnsTotal += windowCount * PRICING.addOns.trackCleaning;
-        if (addHardWater) addOnsTotal += windowCount * PRICING.addOns.hardWaterLight;
-        if (addGutters) addOnsTotal += gutterFeet * PRICING.addOns.gutterPerFoot;
-        let subtotal = basePrice + addOnsTotal;
-        if (isRecurring && recurringFrequency) subtotal *= PRICING.recurring[recurringFrequency];
-        const total = Math.max(subtotal, PRICING.minimumCharge);
-        const perWindow = windowCount > 0 ? (total / windowCount) : 0;
-        setEstimate({ base: Math.round(basePrice), addOns: Math.round(addOnsTotal), total: Math.round(total), perWindow: perWindow.toFixed(2) });
-      };
-
-      const resetCalculator = () => {
-        setServiceType(''); setPropertySize('medium'); setWindowCount(20); setStories(1); setIncludeInterior(true);
-        setAddScreens(false); setAddTracks(false); setAddHardWater(false); setAddGutters(false); setGutterFeet(100);
-        setIsRecurring(false); setRecurringFrequency('quarterly');
-      };
-
-      return React.createElement("div", {className:"min-h-screen bg-gradient-to-br from-blue-900 via-blue-700 to-blue-600 p-6"},
-        React.createElement("div", {className:"max-w-6xl mx-auto"},
-          React.createElement("div", {className:"mb-6"}, React.createElement("a", {href:"index.html",className:"inline-flex items-center gap-2 text-white hover:text-blue-200 transition-colors"}, React.createElement(ArrowLeft, {size:20}), React.createElement("span", {className:"font-medium"}, "Back to Website"))),
-          React.createElement("div", {className:"text-center mb-8"}, React.createElement("div", {className:"flex items-center justify-center gap-3 mb-3"}, React.createElement(Calculator, {size:40}), React.createElement("h1", {className:"text-4xl font-bold text-white"}, "Pricing Calculator")), React.createElement("p", {className:"text-blue-100 text-lg"}, "Vertex Window Services - Grand Junction, CO")),
-          React.createElement("div", {className:"grid lg:grid-cols-3 gap-6"},
-            React.createElement("div", {className:"lg:col-span-2 space-y-4"},
-              React.createElement("div", {className:"bg-white rounded-2xl shadow-xl p-6"}, React.createElement("h2", {className:"text-xl font-bold text-gray-900 mb-4 flex items-center gap-2"}, React.createElement(Building2, {size:24,className:"text-blue-600"}), "Service Type"),
-                React.createElement("div", {className:"space-y-3"}, React.createElement("div", null, React.createElement("p", {className:"text-sm font-semibold text-gray-700 mb-2"}, "Residential Services"),
-                  React.createElement("div", {className:"grid grid-cols-2 gap-2"}, [{id:'residential-exterior',label:'Exterior Only'},{id:'residential-both',label:'Interior & Exterior'},{id:'residential-condo',label:'Condo/Townhouse'},{id:'residential-postconstruction',label:'Post-Construction'}].map(service => React.createElement("button", {key:service.id,onClick:()=>setServiceType(service.id),className:\`p-3 rounded-lg border-2 text-sm font-medium transition-all \${serviceType===service.id?'border-blue-500 bg-blue-50 text-blue-700':'border-gray-200 hover:border-blue-300'}\`}, service.label)))),
-                  React.createElement("div", null, React.createElement("p", {className:"text-sm font-semibold text-gray-700 mb-2"}, "Commercial Services"),
-                    React.createElement("div", {className:"grid grid-cols-2 gap-2"}, [{id:'commercial-storefront',label:'Storefront'},{id:'commercial-office',label:'Office Building'},{id:'commercial-restaurant',label:'Restaurant'},{id:'commercial-medical',label:'Medical Office'}].map(service => React.createElement("button", {key:service.id,onClick:()=>setServiceType(service.id),className:\`p-3 rounded-lg border-2 text-sm font-medium transition-all \${serviceType===service.id?'border-blue-500 bg-blue-50 text-blue-700':'border-gray-200 hover:border-blue-300'}\`}, service.label)))))),
-              serviceType && React.createElement("div", {className:"bg-white rounded-2xl shadow-xl p-6"}, React.createElement("h2", {className:"text-xl font-bold text-gray-900 mb-4 flex items-center gap-2"}, React.createElement(Home, {size:24,className:"text-blue-600"}), "Property Details"),
-                serviceType.startsWith('residential') && React.createElement(React.Fragment, null,
-                  React.createElement("div", {className:"mb-4"}, React.createElement("label", {className:"block text-sm font-semibold text-gray-700 mb-2"}, "Number of Windows"),
-                    React.createElement("div", {className:"flex items-center gap-3"}, React.createElement("button", {onClick:()=>setWindowCount(Math.max(1,windowCount-5)),className:"p-2 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"}, React.createElement(Minus, {size:20})),
-                      React.createElement("input", {type:"number",value:windowCount,onChange:(e)=>setWindowCount(Math.max(1,parseInt(e.target.value)||1)),className:"w-24 text-center text-2xl font-bold p-2 border-2 border-gray-300 rounded-lg"}),
-                      React.createElement("button", {onClick:()=>setWindowCount(windowCount+5),className:"p-2 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"}, React.createElement(Plus, {size:20})))),
-                  React.createElement("div", {className:"mb-4"}, React.createElement("label", {className:"block text-sm font-semibold text-gray-700 mb-2"}, "Number of Stories"),
-                    React.createElement("div", {className:"grid grid-cols-4 gap-2"}, [1,2,3,4].map(story => React.createElement("button", {key:story,onClick:()=>setStories(story),className:\`p-3 rounded-lg border-2 font-semibold transition-all \${stories===story?'border-blue-500 bg-blue-50 text-blue-700':'border-gray-200 hover:border-blue-300'}\`}, story)))),
-                  serviceType !== 'residential-exterior' && React.createElement("div", {className:"mb-4"}, React.createElement("label", {className:"flex items-center gap-2 cursor-pointer"}, React.createElement("input", {type:"checkbox",checked:includeInterior,onChange:(e)=>setIncludeInterior(e.target.checked),className:"w-5 h-5 text-blue-600"}), React.createElement("span", {className:"text-sm font-medium text-gray-700"}, "Include interior windows")))),
-                serviceType.startsWith('commercial') && React.createElement(React.Fragment, null,
-                  serviceType === 'commercial-office' ? React.createElement("div", {className:"mb-4"}, React.createElement("label", {className:"block text-sm font-semibold text-gray-700 mb-2"}, "Property Size"),
-                    React.createElement("div", {className:"grid grid-cols-3 gap-2"}, ['small','medium','large'].map(size => React.createElement("button", {key:size,onClick:()=>setPropertySize(size),className:\`p-3 rounded-lg border-2 text-sm font-medium capitalize transition-all \${propertySize===size?'border-blue-500 bg-blue-50 text-blue-700':'border-gray-200 hover:border-blue-300'}\`}, size))),
-                    React.createElement("p", {className:"text-xs text-gray-500 mt-2"}, "Small: ~1,500 sq ft • Medium: ~3,500 sq ft • Large: ~6,000+ sq ft")) :
-                  React.createElement("div", {className:"mb-4"}, React.createElement("label", {className:"block text-sm font-semibold text-gray-700 mb-2"}, "Number of Windows/Panes"),
-                    React.createElement("div", {className:"flex items-center gap-3"}, React.createElement("button", {onClick:()=>setWindowCount(Math.max(1,windowCount-2)),className:"p-2 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"}, React.createElement(Minus, {size:20})),
-                      React.createElement("input", {type:"number",value:windowCount,onChange:(e)=>setWindowCount(Math.max(1,parseInt(e.target.value)||1)),className:"w-24 text-center text-2xl font-bold p-2 border-2 border-gray-300 rounded-lg"}),
-                      React.createElement("button", {onClick:()=>setWindowCount(windowCount+2),className:"p-2 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"}, React.createElement(Plus, {size:20})))))),
-              serviceType && React.createElement("div", {className:"bg-white rounded-2xl shadow-xl p-6"}, React.createElement("h2", {className:"text-xl font-bold text-gray-900 mb-4"}, "Add-On Services"),
-                React.createElement("div", {className:"space-y-3"},
-                  React.createElement("label", {className:"flex items-center justify-between p-3 bg-gray-50 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors"},
-                    React.createElement("div", {className:"flex items-center gap-3"}, React.createElement("input", {type:"checkbox",checked:addScreens,onChange:(e)=>setAddScreens(e.target.checked),className:"w-5 h-5 text-blue-600"}),
-                      React.createElement("div", null, React.createElement("span", {className:"font-medium text-gray-900"}, "Screen Washing"), React.createElement("p", {className:"text-xs text-gray-500"}, "$4 per screen"))),
-                    addScreens && React.createElement("span", {className:"text-blue-600 font-semibold"}, "+$", windowCount * 4)),
-                  React.createElement("label", {className:"flex items-center justify-between p-3 bg-gray-50 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors"},
-                    React.createElement("div", {className:"flex items-center gap-3"}, React.createElement("input", {type:"checkbox",checked:addTracks,onChange:(e)=>setAddTracks(e.target.checked),className:"w-5 h-5 text-blue-600"}),
-                      React.createElement("div", null, React.createElement("span", {className:"font-medium text-gray-900"}, "Track Cleaning"), React.createElement("p", {className:"text-xs text-gray-500"}, "$2.50 per window"))),
-                    addTracks && React.createElement("span", {className:"text-blue-600 font-semibold"}, "+$", Math.round(windowCount * 2.5))),
-                  React.createElement("label", {className:"flex items-center justify-between p-3 bg-gray-50 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors"},
-                    React.createElement("div", {className:"flex items-center gap-3"}, React.createElement("input", {type:"checkbox",checked:addHardWater,onChange:(e)=>setAddHardWater(e.target.checked),className:"w-5 h-5 text-blue-600"}),
-                      React.createElement("div", null, React.createElement("span", {className:"font-medium text-gray-900"}, "Hard Water Stain Removal"), React.createElement("p", {className:"text-xs text-gray-500"}, "$6 per window (light stains)"))),
-                    addHardWater && React.createElement("span", {className:"text-blue-600 font-semibold"}, "+$", windowCount * 6)),
-                  React.createElement("div", {className:"bg-gray-50 rounded-lg p-3"},
-                    React.createElement("label", {className:"flex items-center gap-3 cursor-pointer"}, React.createElement("input", {type:"checkbox",checked:addGutters,onChange:(e)=>setAddGutters(e.target.checked),className:"w-5 h-5 text-blue-600"}),
-                      React.createElement("div", {className:"flex-1"}, React.createElement("span", {className:"font-medium text-gray-900"}, "Gutter Cleaning"), React.createElement("p", {className:"text-xs text-gray-500"}, "$0.80 per linear foot"))),
-                    addGutters && React.createElement("div", {className:"mt-3 flex items-center gap-3"}, React.createElement("label", {className:"text-sm font-medium text-gray-700"}, "Linear feet:"),
-                      React.createElement("input", {type:"number",value:gutterFeet,onChange:(e)=>setGutterFeet(Math.max(0,parseInt(e.target.value)||0)),className:"w-24 p-2 border-2 border-gray-300 rounded-lg"}),
-                      React.createElement("span", {className:"text-blue-600 font-semibold"}, "+$", Math.round(gutterFeet * 0.80)))))),
-              serviceType && React.createElement("div", {className:"bg-white rounded-2xl shadow-xl p-6"}, React.createElement("h2", {className:"text-xl font-bold text-gray-900 mb-4"}, "Recurring Service"),
-                React.createElement("label", {className:"flex items-center gap-3 mb-3 cursor-pointer"}, React.createElement("input", {type:"checkbox",checked:isRecurring,onChange:(e)=>setIsRecurring(e.target.checked),className:"w-5 h-5 text-blue-600"}), React.createElement("span", {className:"font-medium text-gray-900"}, "This is a recurring service")),
-                isRecurring && React.createElement("div", {className:"grid grid-cols-3 gap-2 mt-3"}, [{id:'monthly',label:'Monthly',discount:'20% off'},{id:'quarterly',label:'Quarterly',discount:'15% off'},{id:'biannual',label:'Bi-Annual',discount:'10% off'}].map(freq => React.createElement("button", {key:freq.id,onClick:()=>setRecurringFrequency(freq.id),className:\`p-3 rounded-lg border-2 text-sm font-medium transition-all \${recurringFrequency===freq.id?'border-blue-500 bg-blue-50 text-blue-700':'border-gray-200 hover:border-blue-300'}\`}, freq.label, React.createElement("span", {className:"block text-xs mt-1"}, freq.discount)))))),
-            React.createElement("div", {className:"lg:col-span-1"}, React.createElement("div", {className:"bg-white rounded-2xl shadow-xl p-6 sticky top-6"},
-              React.createElement("h2", {className:"text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2"}, React.createElement(DollarSign, {size:28,className:"text-green-600"}), "Estimate"),
-              !serviceType ? React.createElement("div", {className:"text-center py-12 text-gray-400"}, React.createElement(Calculator, {size:48,className:"mx-auto mb-3 opacity-50"}), React.createElement("p", {className:"text-sm"}, "Select a service type to begin")) :
-              React.createElement("div", {className:"space-y-4"},
-                React.createElement("div", {className:"pb-4 border-b border-gray-200"},
-                  React.createElement("div", {className:"flex justify-between items-center mb-2"}, React.createElement("span", {className:"text-gray-600"}, "Base Service"), React.createElement("span", {className:"text-lg font-semibold"}, "$", estimate.base)),
-                  estimate.addOns > 0 && React.createElement("div", {className:"flex justify-between items-center text-sm"}, React.createElement("span", {className:"text-gray-600"}, "Add-Ons"), React.createElement("span", {className:"font-semibold text-blue-600"}, "+$", estimate.addOns)),
-                  isRecurring && React.createElement("div", {className:"flex justify-between items-center text-sm mt-2 text-green-600"}, React.createElement("span", {className:"font-medium"}, "Recurring Discount"), React.createElement("span", {className:"font-semibold"}, recurringFrequency === 'monthly' ? '-20%' : recurringFrequency === 'quarterly' ? '-15%' : '-10%'))),
-                React.createElement("div", {className:"bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl p-6 text-white"},
-                  React.createElement("p", {className:"text-sm opacity-90 mb-1"}, "Total Estimate"),
-                  React.createElement("p", {className:"text-4xl font-bold mb-3"}, "$", estimate.total),
-                  windowCount > 0 && React.createElement("p", {className:"text-sm opacity-90"}, "$", estimate.perWindow, " per window")),
-                React.createElement("div", {className:"bg-yellow-50 border border-yellow-200 rounded-lg p-4"},
-                  React.createElement("p", {className:"text-xs text-yellow-800 leading-relaxed"}, React.createElement("strong", null, "Note:"), " This is an estimate. Final pricing may vary based on window accessibility, condition, and specific site requirements. Minimum charge of $100 applies.")),
-                React.createElement("button", {onClick:resetCalculator,className:"w-full py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold rounded-lg transition-colors"}, "Reset Calculator"),
-                React.createElement("div", {className:"pt-4 border-t border-gray-200"},
-                  React.createElement("p", {className:"text-xs text-gray-500 text-center leading-relaxed"}, "Questions? Contact us at", React.createElement("br", null), React.createElement("a", {href:"mailto:vertexws.gj@gmail.com",className:"text-blue-600 font-medium"}, "vertexws.gj@gmail.com"))))))),
-          React.createElement("div", {className:"mt-8 bg-white rounded-2xl shadow-xl p-6"},
-            React.createElement("h3", {className:"text-lg font-bold text-gray-900 mb-3"}, "Quick Pricing Reference"),
-            React.createElement("div", {className:"grid md:grid-cols-3 gap-4 text-sm"},
-              React.createElement("div", null, React.createElement("p", {className:"font-semibold text-gray-900 mb-2"}, "Residential"), React.createElement("ul", {className:"space-y-1 text-gray-600"}, React.createElement("li", null, "• $7 per pane (each side)"), React.createElement("li", null, "• 3-4 story: +25-50% markup"), React.createElement("li", null, "• Minimum: $100"))),
-              React.createElement("div", null, React.createElement("p", {className:"font-semibold text-gray-
+export default PricingCalculator;
