@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Vertex Window Services Pricing Calculator</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body {
+  font-family: Arial, sans-serif;
+  background: linear-gradient(135deg, #0f172a, #1d4ed8);
+  padding: 20px;
+  margin: 0;
+}
+.container {
+  max-width: 1100px;
+  margin: auto;
+  background: white;
+  border-radius: 20px;
+  padding: 20px;
+}
+h1 { text-align: center; }
+.section {
+  border: 1px solid #ddd;
+  padding: 15px;
+  border-radius: 12px;
+  margin-bottom: 16px;
+}
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2,1fr);
+  gap: 10px;
+}
+button {
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  background: #f3f4f6;
+  cursor: pointer;
+}
+button.active {
+  background: #2563eb;
+  color: white;
+  border-color: #2563eb;
+}
+input[type="number"] {
+  width: 80px;
+  padding: 8px;
+  text-align: center;
+}
+.total-box {
+  background: linear-gradient(135deg,#2563eb,#1e40af);
+  color: white;
+  padding: 20px;
+  border-radius: 16px;
+  text-align: center;
+}
+.note {
+  background: #fff8c5;
+  padding: 10px;
+  border-radius: 8px;
+  font-size: 13px;
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+
+<h1>Vertex Window Services Pricing Calculator</h1>
+
+<div class="section">
+<h3>Service Type</h3>
+<div class="grid">
+<button onclick="setService('residential')">Residential</button>
+<button onclick="setService('residential-post')">Post Construction</button>
+<button onclick="setService('commercial-storefront')">Storefront</button>
+<button onclick="setService('commercial-office')">Office</button>
+</div>
+</div>
+
+<div class="section">
+<h3>Window Count</h3>
+<button onclick="windowCount=Math.max(1,windowCount-5);update()">-</button>
+<input id="windows" type="number" value="20">
+<button onclick="windowCount+=5;update()">+</button>
+</div>
+
+<div class="section">
+<h3>Stories</h3>
+<button onclick="stories=1;update()">1</button>
+<button onclick="stories=2;update()">2</button>
+<button onclick="stories=3;update()">3</button>
+<button onclick="stories=4;update()">4</button>
+</div>
+
+<div class="section">
+<label><input type="checkbox" id="screens" onchange="update()"> Screens ($4 / window)</label><br>
+<label><input type="checkbox" id="tracks" onchange="update()"> Tracks ($2.50 / window)</label><br>
+<label><input type="checkbox" id="hardWater" onchange="update()"> Hard Water ($6 / window)</label><br>
+<label><input type="checkbox" id="guttersToggle" onchange="update()"> Gutters ($0.80 / ft)</label><br>
+<input type="number" id="gutters" value="100">
+</div>
+
+<div class="section">
+<label><input type="checkbox" id="recurring" onchange="update()"> Recurring Service</label>
+<select id="frequency" onchange="update()">
+<option value="1">One-Time</option>
+<option value="0.8">Monthly (20% Off)</option>
+<option value="0.85">Quarterly (15% Off)</option>
+<option value="0.9">Bi-Annual (10% Off)</option>
+</select>
+</div>
+
+<div class="total-box">
+<h3>Total Estimate</h3>
+<div id="total">$0</div>
+<div id="perWindow"></div>
+</div>
+
+<br>
+
+<button onclick="resetCalc()">Reset Calculator</button>
+
+<br><br>
+
+<button onclick="bookNow()">Book This Price</button>
+
+<div class="note">
+<strong>Note:</strong> This is an estimate only. Final pricing may vary based on access and condition. Minimum $100 charge applies.
+</div>
+
+</div>
+
+<script>
+let windowCount = 20;
+let stories = 1;
+let service = "residential";
+
+function setService(type){ service = type; update(); }
+
+function update(){
+  windowCount = parseInt(document.getElementById("windows").value) || 1;
+
+  let base = 0;
+
+  if(service.startsWith("residential")){
+    let panes = windowCount * 2;
+    let multiplier = stories === 3 ? 1.25 : stories === 4 ? 1.5 : 1;
+    base = panes * 7 * multiplier;
+    if(service === "residential-post") base *= 1.75;
+  }
+
+  if(service === "commercial-storefront"){
+    base = Math.max(windowCount * 9, 100);
+  }
+  if(service === "commercial-office"){
+    base = Math.max(3500 * 0.08, 150);
+  }
+
+  let addons = 0;
+
+  if(document.getElementById("screens").checked) addons += windowCount * 4;
+  if(document.getElementById("tracks").checked) addons += windowCount * 2.5;
+  if(document.getElementById("hardWater").checked) addons += windowCount * 6;
+  if(document.getElementById("guttersToggle").checked){
+    let feet = parseInt(document.getElementById("gutters").value)||0;
+    addons += feet * 0.8;
+  }
+
+  let total = base + addons;
+
+  if(document.getElementById("recurring").checked){
+    total *= parseFloat(document.getElementById("frequency").value);
+  }
+
+  if(total < 100) total = 100;
+
+  document.getElementById("total").innerText = "$" + Math.round(total);
+  document.getElementById("perWindow").innerText = "$" + (total/windowCount).toFixed(2) + " per window";
+}
+
+function resetCalc(){
+  windowCount = 20;
+  stories = 1;
+  document.getElementById("windows").value = 20;
+  document.querySelectorAll("input[type=checkbox]").forEach(c => c.checked = false);
+  update();
+}
+
+function bookNow(){
+  const price = document.getElementById("total").innerText.replace("$","");
+  window.location.href = "https://yourwebsite.com/book?quote=" + price;
+}
+
+update();
+</script>
+
+</body>
+</html>
