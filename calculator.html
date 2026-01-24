@@ -85,7 +85,7 @@
         residential: {
           exteriorOnly: { perPane: 7 },
           interiorExterior: { perPane: 7 },
-          panesPerWindow: 2,
+          panesPerWindow: 1,
           storyMultiplier: { 1: 1, 2: 1, 3: 1.25, 4: 1.5 }
         },
         commercial: {
@@ -96,9 +96,8 @@
         },
         addOns: {
           screenWash: 4,
-          trackCleaning: 2.5,
-          hardWaterLight: 6,
-          hardWaterHeavy: 12,
+          trackCleaning: 5,
+          hardWaterLight: 2,
           gutterPerFoot: 0.80
         },
         recurring: {
@@ -108,6 +107,14 @@
         },
         minimumCharge: 100
       };
+
+      useEffect(() => {
+        if (serviceType === 'residential-exterior') {
+          setIncludeInterior(false);
+        } else if (serviceType === 'residential-both' || serviceType === 'residential-condo') {
+          setIncludeInterior(true);
+        }
+      }, [serviceType]);
 
       useEffect(() => {
         calculateEstimate();
