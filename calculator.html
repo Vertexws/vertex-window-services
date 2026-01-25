@@ -82,6 +82,7 @@
       const [estimate, setEstimate] = useState({ base: 0, addOns: 0, total: 0, perWindow: 0 });
       const [quoteEmail, setQuoteEmail] = useState('');
       const [quoteName, setQuoteName] = useState('');
+      const [quotePhone, setQuotePhone] = useState('');
       const [quoteAddress, setQuoteAddress] = useState('');
       const [submittingQuote, setSubmittingQuote] = useState(false);
       const [quoteSubmitted, setQuoteSubmitted] = useState(false);
@@ -187,6 +188,7 @@
         setRecurringFrequency('quarterly');
         setQuoteEmail('');
         setQuoteName('');
+        setQuotePhone('');
         setQuoteAddress('');
         setQuoteSubmitted(false);
       };
@@ -217,6 +219,7 @@
         const fields = {
           name: quoteName,
           email: quoteEmail,
+          phone: quotePhone || 'Not provided',
           address: quoteAddress || 'Not provided',
           serviceType: serviceType,
           windowCount: windowCount,
@@ -499,6 +502,13 @@
                             placeholder="Your email"
                             className="w-full p-2 border border-gray-300 rounded-lg text-sm"
                             required
+                          />
+                          <input
+                            type="tel"
+                            value={quotePhone}
+                            onChange={(e) => setQuotePhone(e.target.value)}
+                            placeholder="Your phone (optional)"
+                            className="w-full p-2 border border-gray-300 rounded-lg text-sm"
                           />
                           <input
                             type="text"
