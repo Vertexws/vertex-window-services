@@ -200,55 +200,63 @@
 
         setSubmittingQuote(true);
 
-        // Format the data for the email
-        const formData = new FormData();
-        formData.append('name', quoteName);
-        formData.append('email', quoteEmail);
-        formData.append('address', quoteAddress || 'Not provided');
-        formData.append('serviceType', serviceType);
-        formData.append('windowCount', windowCount);
-        formData.append('stories', stories);
-        formData.append('propertySize', propertySize);
-        formData.append('addOns', [
+        // Build form data
+        const addOnsText = [
           addScreens ? 'Screen Washing' : null,
           addTracks ? 'Track Cleaning' : null,
           addHardWater ? 'Hard Water Removal' : null,
           addGutters ? `Gutter Cleaning (${gutterFeet} ft)` : null
-        ].filter(Boolean).join(', ') || 'None');
-        formData.append('basePrice', estimate.base);
-        formData.append('addOnsTotal', estimate.addOns);
-        formData.append('estimatedTotal', estimate.total);
-        formData.append('perWindow', estimate.perWindow);
-        formData.append('recurring', isRecurring ? `Yes - ${recurringFrequency}` : 'No');
-        formData.append('_subject', `Calculator Quote Request from ${quoteName}`);
-        formData.append('_template', 'table');
-        formData.append('_captcha', 'false');
+        ].filter(Boolean).join(', ') || 'None';
 
-        // Submit to Formspree
-        fetch('https://formspree.io/f/xqarlvqv', {
-          method: 'POST',
-          body: formData,
-        })
-          .then((response) => {
-            setSubmittingQuote(false);
-            if (response.ok) {
-              setQuoteSubmitted(true);
-              // Reset form after 3 seconds
-              setTimeout(() => {
-                setQuoteEmail('');
-                setQuoteName('');
-                setQuoteAddress('');
-                setQuoteSubmitted(false);
-              }, 3000);
-            } else {
-              alert('Error sending quote. Please try again or email vertexws.gj@gmail.com');
-            }
-          })
-          .catch((error) => {
-            setSubmittingQuote(false);
-            alert('Error sending quote. Please try again or email vertexws.gj@gmail.com');
-            console.error('Error:', error);
-          });
+        // Create a hidden form and submit it to Formspree
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = 'https://formspree.io/f/xqarlvqv';
+        form.style.display = 'none';
+
+        const fields = {
+          name: quoteName,
+          email: quoteEmail,
+          address: quoteAddress || 'Not provided',
+          serviceType: serviceType,
+          windowCount: windowCount,
+          stories: stories,
+          propertySize: propertySize,
+          addOns: addOnsText,
+          basePrice: `$${estimate.base}`,
+          addOnsTotal: `$${estimate.addOns}`,
+          estimatedTotal: `$${estimate.total}`,
+          perWindow: `$${estimate.perWindow}`,
+          recurring: isRecurring ? `Yes - ${recurringFrequency}` : 'No',
+          _subject: `Calculator Quote Request from ${quoteName}`,
+          _template: 'table'
+        };
+
+        for (const [key, value] of Object.entries(fields)) {
+          const input = document.createElement('input');
+          input.type = 'hidden';
+          input.name = key;
+          input.value = value;
+          form.appendChild(input);
+        }
+
+        document.body.appendChild(form);
+
+        // Set success message and reset after submission
+        setQuoteSubmitted(true);
+        setSubmittingQuote(false);
+        
+        // Reset form after 3 seconds
+        setTimeout(() => {
+          setQuoteEmail('');
+          setQuoteName('');
+          setQuoteAddress('');
+          setQuoteSubmitted(false);
+        }, 3000);
+
+        // Submit the form
+        form.submit();
+        document.body.removeChild(form);
       };
 
       return (
