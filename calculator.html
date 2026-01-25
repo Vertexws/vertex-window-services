@@ -80,6 +80,11 @@
       const [isRecurring, setIsRecurring] = useState(false);
       const [recurringFrequency, setRecurringFrequency] = useState('quarterly');
       const [estimate, setEstimate] = useState({ base: 0, addOns: 0, total: 0, perWindow: 0 });
+      const [quoteEmail, setQuoteEmail] = useState('');
+      const [quoteName, setQuoteName] = useState('');
+      const [quoteAddress, setQuoteAddress] = useState('');
+      const [submittingQuote, setSubmittingQuote] = useState(false);
+      const [quoteSubmitted, setQuoteSubmitted] = useState(false);
 
       const PRICING = {
         residential: {
@@ -180,6 +185,70 @@
         setGutterFeet(100);
         setIsRecurring(false);
         setRecurringFrequency('quarterly');
+        setQuoteEmail('');
+        setQuoteName('');
+        setQuoteAddress('');
+        setQuoteSubmitted(false);
+      };
+
+      const handleQuoteSubmit = (e) => {
+        e.preventDefault();
+        if (!quoteEmail || !quoteName) {
+          alert('Please enter your name and email');
+          return;
+        }
+
+        setSubmittingQuote(true);
+
+        // Format the data for the email
+        const formData = new FormData();
+        formData.append('name', quoteName);
+        formData.append('email', quoteEmail);
+        formData.append('address', quoteAddress || 'Not provided');
+        formData.append('serviceType', serviceType);
+        formData.append('windowCount', windowCount);
+        formData.append('stories', stories);
+        formData.append('propertySize', propertySize);
+        formData.append('addOns', [
+          addScreens ? 'Screen Washing' : null,
+          addTracks ? 'Track Cleaning' : null,
+          addHardWater ? 'Hard Water Removal' : null,
+          addGutters ? `Gutter Cleaning (${gutterFeet} ft)` : null
+        ].filter(Boolean).join(', ') || 'None');
+        formData.append('basePrice', estimate.base);
+        formData.append('addOnsTotal', estimate.addOns);
+        formData.append('estimatedTotal', estimate.total);
+        formData.append('perWindow', estimate.perWindow);
+        formData.append('recurring', isRecurring ? `Yes - ${recurringFrequency}` : 'No');
+        formData.append('_subject', `Calculator Quote Request from ${quoteName}`);
+        formData.append('_template', 'table');
+        formData.append('_captcha', 'false');
+
+        // Submit to Formspree
+        fetch('https://formspree.io/f/xqarlvqv', {
+          method: 'POST',
+          body: formData,
+        })
+          .then((response) => {
+            setSubmittingQuote(false);
+            if (response.ok) {
+              setQuoteSubmitted(true);
+              // Reset form after 3 seconds
+              setTimeout(() => {
+                setQuoteEmail('');
+                setQuoteName('');
+                setQuoteAddress('');
+                setQuoteSubmitted(false);
+              }, 3000);
+            } else {
+              alert('Error sending quote. Please try again or email vertexws.gj@gmail.com');
+            }
+          })
+          .catch((error) => {
+            setSubmittingQuote(false);
+            alert('Error sending quote. Please try again or email vertexws.gj@gmail.com');
+            console.error('Error:', error);
+          });
       };
 
       return (
@@ -403,6 +472,48 @@
                           <strong>Note:</strong> This is an estimate. Final pricing may vary based on window accessibility, condition, and specific site requirements. Minimum charge of $100 applies.
                         </p>
                       </div>
+
+                      {!quoteSubmitted ? (
+                        <form onSubmit={handleQuoteSubmit} className="bg-gray-50 rounded-lg p-4 space-y-3">
+                          <p className="text-sm font-semibold text-gray-900 mb-3">Get this estimate emailed to you</p>
+                          <input
+                            type="text"
+                            value={quoteName}
+                            onChange={(e) => setQuoteName(e.target.value)}
+                            placeholder="Your name"
+                            className="w-full p-2 border border-gray-300 rounded-lg text-sm"
+                            required
+                          />
+                          <input
+                            type="email"
+                            value={quoteEmail}
+                            onChange={(e) => setQuoteEmail(e.target.value)}
+                            placeholder="Your email"
+                            className="w-full p-2 border border-gray-300 rounded-lg text-sm"
+                            required
+                          />
+                          <input
+                            type="text"
+                            value={quoteAddress}
+                            onChange={(e) => setQuoteAddress(e.target.value)}
+                            placeholder="Service address (optional)"
+                            className="w-full p-2 border border-gray-300 rounded-lg text-sm"
+                          />
+                          <button
+                            type="submit"
+                            disabled={submittingQuote}
+                            className="w-full py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white font-semibold rounded-lg transition-colors text-sm"
+                          >
+                            {submittingQuote ? 'Sending...' : 'Send Quote Request'}
+                          </button>
+                        </form>
+                      ) : (
+                        <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                          <p className="text-sm text-green-800 font-medium">✓ Quote sent!</p>
+                          <p className="text-xs text-green-700 mt-1">We've received your estimate request. You'll hear back soon at {quoteEmail}</p>
+                        </div>
+                      )}
+
                       <button onClick={resetCalculator} className="w-full py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold rounded-lg transition-colors">Reset Calculator</button>
                       <div className="pt-4 border-t border-gray-200">
                         <p className="text-xs text-gray-500 text-center leading-relaxed">Questions? Contact us at<br /><a href="mailto:vertexws.gj@gmail.com" className="text-blue-600 font-medium">vertexws.gj@gmail.com</a></p>
