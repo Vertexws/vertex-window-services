@@ -54,12 +54,8 @@
     /* NAV + HERO */
 
     header {
-      background: linear-gradient(
-        135deg,
-        rgba(13, 71, 161, 0.95),
-        rgba(21, 101, 192, 0.90)
-      );
-      background-color: #0d47a1;
+      background: linear-gradient(135deg, #0a2540 0%, #2563eb 60%, #06b6d4 100%);
+      background-color: #0a2540;
       color: #fff;
     }
 
@@ -712,7 +708,7 @@
         <a href="calculator.html">Price Calculator</a>
       </nav>
 
-      <a href="#contact" class="btn btn-primary">Request a free quote</a>
+      <a href="calculator.html" class="btn btn-primary">Request a free quote</a>
     </div>
 
     <div class="hero">
@@ -734,8 +730,8 @@
         </p>
 
         <div class="hero-cta">
-          <a href="#contact" class="btn btn-primary">Get a free quote</a>
-          <a href="calculator.html" class="btn btn-outline">Try our calculator</a>
+          <a href="calculator.html" class="btn btn-primary">Get a free quote</a>
+          <a href="#contact" class="btn btn-outline">Contact us now</a>
         </div>
 
         <p class="hero-note">
@@ -904,9 +900,6 @@
       <div class="service-area">
         <div>
           <h3>Areas we commonly serve</h3>
-          <p style="font-size:0.9rem; color:var(--muted); margin-top:0.25rem;">
-            Customize this list to match where you actually work.
-          </p>
           <div class="chips">
             <div class="chip">Grand Junction</div>
             <div class="chip">Fruita</div>
@@ -931,20 +924,20 @@
     <!-- CONTACT -->
     <section id="contact">
       <div class="section-header">
-        <div class="section-kicker">Free quote</div>
-        <h2>Request your free estimate</h2>
+        <div class="section-kicker">Contact us</div>
+        <h2>Contact Vertex Window Services</h2>
         <p>
-          Use the form below and we'll follow up with pricing and available
-          dates by email, usually within one business day.
+          Have a question, need to reschedule, or want to discuss your project? Use the form below and we'll get back to you as soon as possible.
         </p>
       </div>
 
       <div class="contact-layout">
         <!-- FORMSPREE FORM -->
+
         <form action="https://formspree.io/f/xqarlvqv" method="POST">
           <input type="hidden" name="_captcha" value="true" />
           <input type="text" name="_gotcha" style="display:none" />
-          <input type="hidden" name="_subject" value="New quote request from Vertex Window Services" />
+          <input type="hidden" name="_subject" value="New contact from Vertex Window Services" />
           <input type="hidden" name="_template" value="table" />
 
           <div class="form-grid">
@@ -960,61 +953,27 @@
 
           <div class="form-grid">
             <div class="form-group">
-              <label for="phone">Phone</label>
+              <label for="phone">Phone (optional)</label>
               <input id="phone" name="phone" type="tel" placeholder="(123) 456-7890" />
             </div>
           </div>
 
-          <div class="form-grid">
-            <div class="form-group">
-              <label for="address">Service address</label>
-              <input id="address" name="address" type="text" placeholder="Street, city, ZIP" />
-            </div>
-            <div class="form-group">
-              <label for="city">City</label>
-              <input id="city" name="city" type="text" placeholder="Grand Junction, Fruita, etc." />
-            </div>
+          <div class="form-group">
+            <label for="message">How can we help?</label>
+            <textarea 
+              id="message" 
+              name="message" 
+              rows="4" 
+              placeholder="Let us know your question, request, or how we can help."
+              required
+            ></textarea>
           </div>
 
-        <div class="form-group">
-  <label for="serviceType">Type of service</label>
-  <select id="serviceType" name="serviceType">
-    <option value="">Select service type</option>
-    <optgroup label="Residential Services">
-      <option>Home - Exterior windows only</option>
-      <option>Home - Interior & exterior</option>
-      <option>Condo / Townhouse</option>
-      <option>Post-construction home cleanup</option>
-    </optgroup>
-    <optgroup label="Commercial Services">
-      <option>Storefront / Retail</option>
-      <option>Office building</option>
-      <option>Restaurant / Café</option>
-      <option>Medical / Professional office</option>
-    </optgroup>
-    <optgroup label="Add-On Services">
-      <option>Screen washing & track cleaning</option>
-      <option>Hard water stain removal</option>
-      <option>Gutter cleaning</option>
-      <option>Not sure - Need help deciding</option>
-    </optgroup>
-  </select>
-</div>
+          <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center; padding: 0.85rem 1.5rem; font-size: 1rem;">
+            Send message
+          </button>
 
-<div class="form-group">
-  <label for="message">Tell us about your windows</label>
-  <textarea 
-    id="message" 
-    name="message" 
-    rows="4" 
-    placeholder="How many windows? Any special concerns? What's your timeline?"
-    required
-  ></textarea>
-</div>
-
-<button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center; padding: 0.85rem 1.5rem; font-size: 1rem;">
-  Send my free quote request
-</button>
+        </form>
 
         </form>
       </div>
