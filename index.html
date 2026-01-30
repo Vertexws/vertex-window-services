@@ -57,6 +57,18 @@
       background: linear-gradient(135deg, #0a2540 0%, #2563eb 60%, #06b6d4 100%);
       background-color: #0a2540;
       color: #fff;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .header-flower-decoration {
+      position: absolute;
+      bottom: -200px;
+      right: -200px;
+      width: 600px;
+      height: 600px;
+      opacity: 0.15;
+      pointer-events: none;
     }
 
     .topbar {
@@ -762,6 +774,39 @@
         </div>
       </div>
     </div>
+
+    <!-- Decorative Flower of Life -->
+    <svg class="header-flower-decoration" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+      <!-- Center circle -->
+      <circle cx="100" cy="100" r="25" fill="none" stroke="#ffffff" stroke-width="2.5"/>
+
+      <!-- First ring of 6 circles -->
+      <circle cx="100" cy="75" r="25" fill="none" stroke="#ffffff" stroke-width="2.5"/>
+      <circle cx="121.65" cy="87.5" r="25" fill="none" stroke="#ffffff" stroke-width="2.5"/>
+      <circle cx="121.65" cy="112.5" r="25" fill="none" stroke="#ffffff" stroke-width="2.5"/>
+      <circle cx="100" cy="125" r="25" fill="none" stroke="#ffffff" stroke-width="2.5"/>
+      <circle cx="78.35" cy="112.5" r="25" fill="none" stroke="#ffffff" stroke-width="2.5"/>
+      <circle cx="78.35" cy="87.5" r="25" fill="none" stroke="#ffffff" stroke-width="2.5"/>
+
+      <!-- Outer ring -->
+      <circle cx="100" cy="50" r="25" fill="none" stroke="#ffffff" stroke-width="2.5"/>
+      <circle cx="143.3" cy="75" r="25" fill="none" stroke="#ffffff" stroke-width="2.5"/>
+      <circle cx="143.3" cy="100" r="25" fill="none" stroke="#ffffff" stroke-width="2.5"/>
+      <circle cx="143.3" cy="125" r="25" fill="none" stroke="#ffffff" stroke-width="2.5"/>
+      <circle cx="100" cy="150" r="25" fill="none" stroke="#ffffff" stroke-width="2.5"/>
+      <circle cx="56.7" cy="75" r="25" fill="none" stroke="#ffffff" stroke-width="2.5"/>
+      <circle cx="56.7" cy="100" r="25" fill="none" stroke="#ffffff" stroke-width="2.5"/>
+      <circle cx="56.7" cy="125" r="25" fill="none" stroke="#ffffff" stroke-width="2.5"/>
+
+      <!-- Additional outer circles for fuller pattern -->
+      <circle cx="121.65" cy="62.5" r="25" fill="none" stroke="#ffffff" stroke-width="2.5"/>
+      <circle cx="78.35" cy="62.5" r="25" fill="none" stroke="#ffffff" stroke-width="2.5"/>
+      <circle cx="121.65" cy="137.5" r="25" fill="none" stroke="#ffffff" stroke-width="2.5"/>
+      <circle cx="78.35" cy="137.5" r="25" fill="none" stroke="#ffffff" stroke-width="2.5"/>
+
+      <!-- Center point -->
+      <circle cx="100" cy="100" r="3" fill="#ffffff" opacity="0.8"/>
+    </svg>
   </header>
 
   <main>
