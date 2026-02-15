@@ -89,16 +89,16 @@
 
       const PRICING = {
         residential: {
-          exteriorOnly: { perPane: 7 },
-          interiorExterior: { perPane: 7 },
+          exteriorOnly: { perPane: 5 },
+          interiorExterior: { perPane: 5 },
           panesPerWindow: 1,
           storyMultiplier: { 1: 1, 2: 1, 3: 1.25, 4: 1.5 }
         },
         commercial: {
-          storefront: { perPane: 9, min: 100 },
+          storefront: { perPane: 7, min: 100 },
           office: { perSquareFoot: 0.08, min: 150 },
-          restaurant: { perPane: 9, min: 120 },
-          medical: { perPane: 9, min: 150 }
+          restaurant: { perPane: 7, min: 120 },
+          medical: { perPane: 7, min: 150 }
         },
         addOns: {
           screenWash: 4,
@@ -547,7 +547,7 @@
                 <div>
                   <p className="font-semibold text-gray-900 mb-2">Residential</p>
                   <ul className="space-y-1 text-gray-600">
-                    <li>• $7 per pane (each side)</li>
+                    <li>• $5 per pane (each side)</li>
                     <li>• 3-4 story: +25-50% markup</li>
                     <li>• Minimum: $100</li>
                   </ul>
@@ -555,7 +555,7 @@
                 <div>
                   <p className="font-semibold text-gray-900 mb-2">Commercial</p>
                   <ul className="space-y-1 text-gray-600">
-                    <li>• Storefront: $9 per pane</li>
+                    <li>• Storefront: $7 per pane</li>
                     <li>• Office: ~$0.08 per sq ft</li>
                     <li>• Minimum: $100-150</li>
                   </ul>
