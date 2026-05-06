@@ -236,48 +236,69 @@
       max-width: 28rem;
     }
 
-    .hero-right {
-      background: rgba(3, 20, 46, 0.55);
-      padding: 1.2rem 1.3rem 1.3rem;
+    /* SLIDESHOW */
+
+    .hero-slideshow {
       border-radius: 20px;
       box-shadow: 0 18px 45px rgba(0, 0, 0, 0.6);
-      backdrop-filter: blur(18px);
+      overflow: hidden;
+      position: relative;
+      aspect-ratio: 4 / 3;
     }
 
-    .hero-right h3 {
-      font-size: 1.05rem;
-      margin-bottom: 0.35rem;
+    .slide {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      transition: opacity 0.8s ease;
+      display: flex;
+      align-items: flex-end;
+      background-size: cover;
+      background-position: center;
     }
 
-    .hero-right p {
-      font-size: 0.86rem;
-      opacity: 0.9;
-      margin-bottom: 0.9rem;
+    .slide.active {
+      opacity: 1;
     }
 
-    .hero-mini-grid {
-      display: grid;
-      grid-template-columns: 1.1fr 1.1fr;
-      gap: 0.7rem;
-      font-size: 0.8rem;
+    .slide-caption {
+      background: linear-gradient(transparent, rgba(0, 0, 0, 0.65));
+      color: #fff;
+      padding: 1.2rem 1rem 0.9rem;
+      width: 100%;
+      font-size: 0.85rem;
+      font-weight: 600;
     }
 
-    .hero-mini {
-      background: rgba(10, 25, 47, 0.85);
-      border-radius: 14px;
-      padding: 0.65rem 0.8rem;
+    .slide-caption span {
+      display: block;
+      font-size: 0.75rem;
+      font-weight: 400;
+      opacity: 0.85;
+      margin-top: 0.1rem;
     }
 
-    .hero-mini b {
-      font-size: 0.95rem;
+    .slideshow-dots {
+      position: absolute;
+      bottom: 0.65rem;
+      right: 0.8rem;
+      display: flex;
+      gap: 0.4rem;
     }
 
-    .hero-mini-title {
-      font-size: 0.72rem;
-      text-transform: uppercase;
-      letter-spacing: 0.14em;
-      opacity: 0.9;
-      margin-bottom: 0.15rem;
+    .slideshow-dots button {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      border: none;
+      background: rgba(255, 255, 255, 0.45);
+      cursor: pointer;
+      padding: 0;
+      transition: background 0.2s;
+    }
+
+    .slideshow-dots button.active {
+      background: #fff;
     }
 
     /* MAIN LAYOUT */
@@ -584,8 +605,9 @@
         padding-top: 2rem;
       }
 
-      .hero-right {
+      .hero-slideshow {
         order: -1;
+        aspect-ratio: 16 / 9;
       }
 
       .cards,
@@ -739,24 +761,14 @@
         </p>
       </div>
 
-      <div class="hero-right">
-        <h3>Quick estimate info</h3>
-        <p>
-          Share your address, number of stories, and a rough idea of window
-          count. We'll follow up with a clear, honest quote by email.
-        </p>
-        <div class="hero-mini-grid">
-          <div class="hero-mini">
-            <div class="hero-mini-title">Average response time</div>
-            <b>&lt; 1 business day</b>
-            <div>You'll hear back quickly with pricing and dates.</div>
-          </div>
-          <div class="hero-mini">
-            <div class="hero-mini-title">Typical clients</div>
-            <b>Homes &amp; storefronts</b>
-            <div>Single-family homes, offices, and local shops.</div>
-          </div>
+      <div class="hero-slideshow" id="heroSlideshow">
+        <div class="slide active" style="background-image: url('images/IMG_1711.JPG');">
+          <div class="slide-caption">Commercial office cleaning<span>After — Grand Junction, CO</span></div>
         </div>
+        <div class="slide" style="background-image: url('images/IMG_1631.JPG');">
+          <div class="slide-caption">Residential window cleaning<span>After — Grand Junction, CO</span></div>
+        </div>
+        <div class="slideshow-dots" id="slideshowDots"></div>
       </div>
     </div>
 
@@ -1041,6 +1053,43 @@
       </p>
     </div>
   </footer>
+
+  <script>
+    (function () {
+      const slideshow = document.getElementById('heroSlideshow');
+      const slides = slideshow.querySelectorAll('.slide');
+      const dotsContainer = document.getElementById('slideshowDots');
+      let current = 0;
+      let timer;
+
+      slides.forEach((_, i) => {
+        const btn = document.createElement('button');
+        if (i === 0) btn.classList.add('active');
+        btn.addEventListener('click', () => goTo(i));
+        dotsContainer.appendChild(btn);
+      });
+
+      const dots = dotsContainer.querySelectorAll('button');
+
+      function goTo(index) {
+        slides[current].classList.remove('active');
+        dots[current].classList.remove('active');
+        current = index;
+        slides[current].classList.add('active');
+        dots[current].classList.add('active');
+        resetTimer();
+      }
+
+      function next() { goTo((current + 1) % slides.length); }
+
+      function resetTimer() {
+        clearInterval(timer);
+        timer = setInterval(next, 4000);
+      }
+
+      resetTimer();
+    })();
+  </script>
 
 </body>
 </html>
